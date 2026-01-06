@@ -11,7 +11,7 @@ Le dataset fourni est **un exemple de données métiers**, pas la base finale te
 
 ---
 
-## 📁 LIVRABLES OBLIGATOIRES (à la racine du repo)
+## LIVRABLES OBLIGATOIRES (à la racine du repo)
 
 ```
 schema.sql
