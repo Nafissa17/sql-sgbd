@@ -22,19 +22,6 @@ triggers.sql
 ```
 
 
-
-
-
-
-Parfait, ton sujet est **très structuré**, donc on peut organiser le travail proprement et **répartir intelligemment entre 5 personnes** 👍
-Je vais faire 3 choses :
-
-1. **Expliquer clairement ce que vous devez faire (vision globale)**
-2. **Relier ton dataset Excel au projet**
-3. **Diviser le travail en 5 parties (1 personne = 1 responsabilité claire)**
-
----
-
 ## 1️ Ce que vous devez faire
 
 Vous devez **transformer une gestion papier en un système SQL Server propre et robuste**, avec :
