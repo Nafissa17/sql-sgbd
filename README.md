@@ -97,7 +97,7 @@ Il sera utilisé **dans `data.sql`**
 * Suppression d’un worker si aucun contrat depuis 5 ans
 * Une usine ne peut assembler un robot que si toutes les pièces sont présentes
 
-C’est **la base du projet**, personne très importante.
+C’est **la base du projet**.
 
 ---
 
@@ -191,7 +191,7 @@ Cette personne doit tester chaque fonction avec des `SELECT`.
 
 ---
 
-## 4️⃣ Ordre de travail recommandé
+## 4️⃣ Ordre de travail 
 
 1. **Schéma SQL**
 2. **Vues**
