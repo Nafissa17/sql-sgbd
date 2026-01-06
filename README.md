@@ -66,7 +66,7 @@ Il sera utilisé **dans `data.sql`**
 
 ## 3️⃣ Découpage du travail en 5 (groupe de 5)
 
-### 👤 Personne 1 — **Modélisation & schéma SQL**
+### 👤 SAMB NAfissatou — **Modélisation & schéma SQL**
 
 `schema.sql`
 
