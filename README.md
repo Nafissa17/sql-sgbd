@@ -24,7 +24,7 @@ triggers.sql
 
 ## 1️ Ce que vous devez faire
 
-Vous devez **transformer une gestion papier en un système SQL Server propre et robuste**, avec :
+On doit **transformer une gestion papier en un système SQL Server propre et robuste**, avec :
 
 * Une **base de données bien conçue**
 * Des **vues** (pour cacher la structure aux applications)
@@ -37,11 +37,11 @@ Les applications **n’accèdent JAMAIS directement aux tables**, uniquement via
 
 ---
 
-## 2️⃣ Rôle de ton dataset Excel
+## 2️⃣ Rôle du dataset Excel
 
-Ton dataset représente déjà une partie métier essentielle :
+Le dataset représente déjà une partie métier essentielle :
 
-### Ce que contient ton dataset
+### Ce que contient le dataset
 
 Il correspond à :
 
