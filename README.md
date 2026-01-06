@@ -129,7 +129,7 @@ Cette personne valide que **tout fonctionne avec des données réelles**.
 
 ---
 
-### 👤 Mariam Marwo — **Vues SQL**
+### 👤 Mariam Marwo ABDILLAHI ABDI — **Vues SQL**
 
 inclus dans `schema.sql` (ou fichier séparé si autorisé)
 
@@ -152,7 +152,7 @@ Toutes les **fonctions et triggers dépendent de ces vues**.
 
 ---
 
-### 👤 Personne 4 — **Fonctions SQL**
+### 👤 Orlane Emmanuelle NKIBAN ITCHIRI — **Fonctions SQL**
 
  `functions.sql`
 
