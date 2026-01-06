@@ -2,7 +2,7 @@
 
 ## OBJECTIF GLOBAL
 
-* **concevoir une base SQL Server (ou Oracle-like vu VARCHAR2/NUMBER)**
+* **concevoir une base SQL Server**
 * **cacher la structure des tables** aux applications
 * **exposer uniquement des vues, fonctions, procédures et triggers**
 * livrer **5 fichiers SQL strictement nommés**
