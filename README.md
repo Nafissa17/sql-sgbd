@@ -101,7 +101,7 @@ C’est **la base du projet**, personne très importante.
 
 ---
 
-### 👤 Personne 2 — **Données & alimentation**
+### 👤 Diallo ALPHA — **Données & alimentation**
 
 `data.sql`
 
