@@ -1,0 +1,22 @@
+version: "3.9"
+
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: sql-human-bot
+    restart: unless-stopped
+
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "Str0ng!Passw0rd"
+      MSSQL_PID: "Developer"
+
+    ports:
+      - "1433:1433"
+
+    volumes:
+      - sqlserver_data:/var/opt/mssql
+      - ./:/sql
+
+volumes:
+  sqlserver_data:
