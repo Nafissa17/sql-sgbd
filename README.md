@@ -4,7 +4,7 @@
 
 | Membre | Rôle | Responsabilités |
 |--------|------|----------------|
-| **SAMB Nafissatou** | Modélisation & schéma SQL | `schema.sql` - Tables, clés, contraintes |
+| **SAMB Nafissatou** | Modélisation & schéma SQL | `schema.sql` - BDD, Tables, clés, contraintes |
 | **Diallo ALPHA** | Données & alimentation | `data.sql` - Insertion des données du dataset Excel |
 | **Mariam Marwo ABDILLAHI ABDI** | Vues SQL | Vues dans `schema.sql` - 4 vues demandées |
 | **Orlane Emmanuelle NKIBAN ITCHIRI** | Fonctions SQL | `functions.sql` - 4 fonctions métier |
