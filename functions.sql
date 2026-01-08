@@ -28,14 +28,15 @@ RETURNS INT
 AS
 BEGIN
     DECLARE @nb_big_robots INT;
-    
-    -- Compter les modèles de robot qui ont plus de 3 pièces différentes
-    -- Dans notre dataset, TOUS les modèles ont 7 pièces, donc > 3
-    SELECT @nb_big_robots = COUNT(DISTINCT rpc.model_id)
-    FROM ROBOT_PARTS_COMPOSITION rpc
-    GROUP BY rpc.model_id
-    HAVING COUNT(DISTINCT rpc.part_id) > 3;
-    
+
+    SELECT @nb_big_robots = COUNT(*)
+    FROM (
+        SELECT rpc.model_id
+        FROM ROBOT_PARTS_COMPOSITION rpc
+        GROUP BY rpc.model_id
+        HAVING COUNT(DISTINCT rpc.part_id) > 3
+    ) AS big_robots;
+
     RETURN ISNULL(@nb_big_robots, 0);
 END;
 GO
