@@ -46,7 +46,6 @@ CREATE TABLE CONTRACTS (
     factory_id INT NOT NULL,
     start_date DATE NOT NULL,
     end_date DATE NULL,
-    duration_days AS DATEDIFF(DAY, start_date, ISNULL(end_date, GETDATE())),
     CONSTRAINT fk_contract_worker
         FOREIGN KEY (worker_id) REFERENCES WORKERS(worker_id),
     CONSTRAINT fk_contract_factory
@@ -67,20 +66,14 @@ CREATE TABLE ROBOT_MODELS (
 );
 GO
 
-/* -------------ROBOTS----------------- */
-IF OBJECT_ID('ROBOTS', 'U') IS NOT NULL
-    DROP TABLE ROBOTS;
+/* -------------SUPPLIERS----------------- */
+IF OBJECT_ID('SUPPLIERS', 'U') IS NOT NULL
+    DROP TABLE SUPPLIERS;
 GO
 
-CREATE TABLE ROBOTS (
-    robot_id INT IDENTITY PRIMARY KEY,
-    model_id INT NOT NULL,
-    factory_id INT NOT NULL,
-    assembly_date DATE NOT NULL DEFAULT GETDATE(),
-    CONSTRAINT fk_robot_model
-        FOREIGN KEY (model_id) REFERENCES ROBOT_MODELS(model_id),
-    CONSTRAINT fk_robot_factory
-        FOREIGN KEY (factory_id) REFERENCES FACTORIES(factory_id)
+CREATE TABLE SUPPLIERS (
+    supplier_id INT IDENTITY PRIMARY KEY,
+    supplier_name VARCHAR(100) NOT NULL UNIQUE
 );
 GO
 
@@ -95,50 +88,44 @@ CREATE TABLE SPARE_PARTS (
 );
 GO
 
-/* -------------SUPPLIERS----------------- */
-IF OBJECT_ID('SUPPLIERS', 'U') IS NOT NULL
-    DROP TABLE SUPPLIERS;
+/* -------------ROBOT_PARTS (Composition des robots)----------------- */
+IF OBJECT_ID('ROBOT_PARTS_COMPOSITION', 'U') IS NOT NULL
+    DROP TABLE ROBOT_PARTS_COMPOSITION;
 GO
 
-CREATE TABLE SUPPLIERS (
-    supplier_id INT IDENTITY PRIMARY KEY,
-    supplier_name VARCHAR(100) NOT NULL UNIQUE
+CREATE TABLE ROBOT_PARTS_COMPOSITION (
+    composition_id INT IDENTITY PRIMARY KEY,
+    model_id INT NOT NULL,
+    part_id INT NOT NULL,
+    supplier_id INT NOT NULL,
+    CONSTRAINT fk_rpc_model
+        FOREIGN KEY (model_id) REFERENCES ROBOT_MODELS(model_id),
+    CONSTRAINT fk_rpc_part
+        FOREIGN KEY (part_id) REFERENCES SPARE_PARTS(part_id),
+    CONSTRAINT fk_rpc_supplier
+        FOREIGN KEY (supplier_id) REFERENCES SUPPLIERS(supplier_id),
+    CONSTRAINT uq_model_part UNIQUE (model_id, part_id)
 );
 GO
 
-/* -------------SUPPLIER PARTS----------------- */
-IF OBJECT_ID('SUPPLIER_PARTS', 'U') IS NOT NULL
-    DROP TABLE SUPPLIER_PARTS;
+/* -------------SUPPLIER_DELIVERIES (Livraisons de pièces)----------------- */
+IF OBJECT_ID('SUPPLIER_DELIVERIES', 'U') IS NOT NULL
+    DROP TABLE SUPPLIER_DELIVERIES;
 GO
 
-CREATE TABLE SUPPLIER_PARTS (
+CREATE TABLE SUPPLIER_DELIVERIES (
+    delivery_id INT IDENTITY PRIMARY KEY,
     supplier_id INT NOT NULL,
     part_id INT NOT NULL,
-    quantity_supplied INT NOT NULL,
-    CONSTRAINT pk_supplier_parts PRIMARY KEY (supplier_id, part_id),
-    CONSTRAINT fk_sp_supplier
+    factory_id INT NOT NULL,
+    delivery_date DATE NOT NULL,
+    quantity INT NOT NULL CHECK (quantity > 0),
+    CONSTRAINT fk_delivery_supplier
         FOREIGN KEY (supplier_id) REFERENCES SUPPLIERS(supplier_id),
-    CONSTRAINT fk_sp_part
+    CONSTRAINT fk_delivery_part
         FOREIGN KEY (part_id) REFERENCES SPARE_PARTS(part_id),
-    CONSTRAINT chk_quantity_supplied CHECK (quantity_supplied > 0)
-);
-GO
-
-/* -------------ROBOT PARTS----------------- */
-IF OBJECT_ID('ROBOT_PARTS', 'U') IS NOT NULL
-    DROP TABLE ROBOT_PARTS;
-GO
-
-CREATE TABLE ROBOT_PARTS (
-    robot_id INT NOT NULL,
-    part_id INT NOT NULL,
-    quantity_needed INT NOT NULL,
-    CONSTRAINT pk_robot_parts PRIMARY KEY (robot_id, part_id),
-    CONSTRAINT fk_rp_robot
-        FOREIGN KEY (robot_id) REFERENCES ROBOTS(robot_id),
-    CONSTRAINT fk_rp_part
-        FOREIGN KEY (part_id) REFERENCES SPARE_PARTS(part_id),
-    CONSTRAINT chk_quantity_needed CHECK (quantity_needed > 0)
+    CONSTRAINT fk_delivery_factory
+        FOREIGN KEY (factory_id) REFERENCES FACTORIES(factory_id)
 );
 GO
 
@@ -160,40 +147,34 @@ CREATE TABLE PRODUCTION (
 );
 GO
 
-/* -------------AUDIT ROBOT----------------- */
+/* -------------AUDIT_ROBOT----------------- */
 IF OBJECT_ID('AUDIT_ROBOT', 'U') IS NOT NULL
     DROP TABLE AUDIT_ROBOT;
 GO
 
 CREATE TABLE AUDIT_ROBOT (
     audit_id INT IDENTITY PRIMARY KEY,
-    robot_id INT NOT NULL,
-    factory_id INT NOT NULL,
-    model_id INT NOT NULL,
+    model_name VARCHAR(50) NOT NULL,
     created_at DATETIME NOT NULL DEFAULT GETDATE()
 );
 GO
 
-ALTER TABLE CONTRACTS ADD duration_days_real INT NULL;
-GO
-
-/*---------------VIEWS----------------- */
-
-/* 1. ALL_WORKERS */
+/* -------------VUE 1: ALL_WORKERS----------------- */
 CREATE OR ALTER VIEW ALL_WORKERS AS
 SELECT
     w.worker_id,
     w.lastname,
     w.firstname,
     w.age,
-    c.start_date
+    c.start_date,
+    f.name as factory_name
 FROM WORKERS w
 JOIN CONTRACTS c ON w.worker_id = c.worker_id
+JOIN FACTORIES f ON c.factory_id = f.factory_id
 WHERE c.end_date IS NULL;
 GO
 
-
-/* 2. ALL_WORKERS_ELAPSED */
+/* -------------VUE 2: ALL_WORKERS_ELAPSED----------------- */
 CREATE OR ALTER VIEW ALL_WORKERS_ELAPSED AS
 SELECT
     worker_id,
@@ -203,25 +184,23 @@ SELECT
 FROM ALL_WORKERS;
 GO
 
-
-/* 3. BEST_SUPPLIERS */
-CREATE VIEW BEST_SUPPLIERS AS
+/* -------------VUE 3: BEST_SUPPLIERS----------------- */
+CREATE OR ALTER VIEW BEST_SUPPLIERS AS
 SELECT
     s.supplier_name AS supplier,
-    SUM(sp.quantity_supplied) AS nb_parts
+    SUM(sd.quantity) AS nb_parts
 FROM SUPPLIERS s
-JOIN SUPPLIER_PARTS sp ON s.supplier_id = sp.supplier_id
+JOIN SUPPLIER_DELIVERIES sd ON s.supplier_id = sd.supplier_id
 GROUP BY s.supplier_name
-HAVING SUM(sp.quantity_supplied) > 1000;
+HAVING SUM(sd.quantity) > 1000;
 GO
 
-/* 4. ROBOTS_FACTORIES */
-CREATE VIEW ROBOTS_FACTORIES AS
+/* -------------VUE 4: ROBOTS_FACTORIES----------------- */
+CREATE OR ALTER VIEW ROBOTS_FACTORIES AS
 SELECT
     f.name AS factory,
-    COUNT(r.robot_id) AS nb_robots
-FROM ROBOTS r
-JOIN FACTORIES f ON r.factory_id = f.factory_id
+    SUM(p.quantity) AS nb_robots
+FROM PRODUCTION p
+JOIN FACTORIES f ON p.factory_id = f.factory_id
 GROUP BY f.name;
 GO
-
