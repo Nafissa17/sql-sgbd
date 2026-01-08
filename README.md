@@ -43,7 +43,7 @@ docker exec -it sql-human-bot /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -
 
 ```
 sql-sgbd/
-├── schema.sql          # Tables + vues (SAMB Nafissatou + Mariam)
+├── schema.sql          # BDD-Tables-Contraintes + vues (Nafissa + Mariam)
 ├── data.sql            # Données initiales (Diallo ALPHA)
 ├── functions.sql       # 4 fonctions métier (Orlane)
 ├── procedures.sql      # 3 procédures stockées (Mansour)
