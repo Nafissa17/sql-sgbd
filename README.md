@@ -2,7 +2,7 @@
 
 ## 👥 Équipe de développement
 
-| Membre | Rôle | Responsabilités |
+| Membres | Rôles | Responsabilités |
 |--------|------|----------------|
 | **SAMB Nafissatou** | Modélisation & schéma SQL | `schema.sql` - BDD, Tables, clés, contraintes |
 | **Diallo ALPHA** | Données & alimentation | `data.sql` - Insertion des données du dataset Excel |
