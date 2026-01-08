@@ -1,4 +1,3 @@
-
 USE HUMAN_BOT;
 GO
 
