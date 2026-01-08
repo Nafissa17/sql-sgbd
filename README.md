@@ -18,7 +18,7 @@
 
 ### 1. Cloner et démarrer le projet
 ```bash
-git clone [votre-repo]
+git clone https://github.com/Nafissa17/sql-sgbd.git
 cd sql-sgbd
 docker-compose up -d
 ```
