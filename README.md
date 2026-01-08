@@ -1,202 +1,111 @@
-# sql-sgbd
+# Human Bot - Base de données SQL Server
 
-## OBJECTIF GLOBAL
+## 👥 Équipe de développement
 
-* **concevoir une base SQL Server**
-* **cacher la structure des tables** aux applications
-* **exposer uniquement des vues, fonctions, procédures et triggers**
-* livrer **5 fichiers SQL strictement nommés**
+| Membre | Rôle | Responsabilités |
+|--------|------|----------------|
+| **SAMB Nafissatou** | Modélisation & schéma SQL | `schema.sql` - Tables, clés, contraintes |
+| **Diallo ALPHA** | Données & alimentation | `data.sql` - Insertion des données du dataset Excel |
+| **Mariam Marwo ABDILLAHI ABDI** | Vues SQL | Vues dans `schema.sql` - 4 vues demandées |
+| **Orlane Emmanuelle NKIBAN ITCHIRI** | Fonctions SQL | `functions.sql` - 4 fonctions métier |
+| **Mansour Djamil NDIAYE** | Procédures & Triggers | `procedures.sql` & `triggers.sql` - Automatisation |
 
-Le dataset fourni est **un exemple de données métiers**, pas la base finale telle quelle.
+## Installation et exécution
 
----
+### Prérequis
+- Docker Desktop
+- Git
 
-## LIVRABLES OBLIGATOIRES (à la racine du repo)
+### 1. Cloner et démarrer le projet
+```bash
+git clone [votre-repo]
+cd sql-sgbd
+docker-compose up -d
+```
+
+### 2. Initialiser la base de données
+```bash
+# Exécuter les fichiers dans l'ordre
+docker exec -it sql-human-bot /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "Str0ng!Passw0rd" -C -i /sql/schema.sql
+docker exec -it sql-human-bot /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "Str0ng!Passw0rd" -C -i /sql/data.sql
+docker exec -it sql-human-bot /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "Str0ng!Passw0rd" -C -i /sql/functions.sql
+docker exec -it sql-human-bot /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "Str0ng!Passw0rd" -C -i /sql/procedures.sql
+docker exec -it sql-human-bot /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "Str0ng!Passw0rd" -C -i /sql/triggers.sql
+```
+
+### 3. Tester le système
+```bash
+# Lancer tous les tests
+docker exec -it sql-human-bot /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "Str0ng!Passw0rd" -C -i /sql/test.sql
+```
+
+## Structure des fichiers
 
 ```
-schema.sql
-data.sql
-functions.sql
-procedures.sql
-triggers.sql
+sql-sgbd/
+├── schema.sql          # Tables + vues (SAMB Nafissatou + Mariam)
+├── data.sql            # Données initiales (Diallo ALPHA)
+├── functions.sql       # 4 fonctions métier (Orlane)
+├── procedures.sql      # 3 procédures stockées (Mansour)
+├── triggers.sql        # 4 triggers (Mansour)
+├── test.sql           # Tests de validation
+├── docker-compose.yml # Configuration Docker
+└── README.md          # Documentation
 ```
 
+## Fonctionnalités implémentées
 
-## 1️ Ce que vous devez faire
+### Vues (4)
+1. `ALL_WORKERS` - Travailleurs actifs
+2. `ALL_WORKERS_ELAPSED` - Jours travaillés
+3. `BEST_SUPPLIERS` - Fournisseurs >1000 pièces
+4. `ROBOTS_FACTORIES` - Production par usine
 
-On doit **transformer une gestion papier en un système SQL Server propre et robuste**, avec :
+### Fonctions (4)
+1. `GET_NB_WORKERS(usine)` - Nombre de travailleurs
+2. `GET_NB_BIG_ROBOTS()` - Robots avec >3 pièces
+3. `GET_BEST_SUPPLIER()` - Meilleur fournisseur
+4. `GET_OLDEST_WORKER()` - Travailleur le plus ancien
 
-* Une **base de données bien conçue**
-* Des **vues** (pour cacher la structure aux applications)
-* Des **fonctions**
-* Des **procédures**
-* Des **triggers**
-* Le tout livré dans **5 fichiers SQL séparés** dans un repo Git
+### Procédures (3)
+1. `SEED_DATA_WORKERS(nb, usine_id)` - Génération de travailleurs
+2. `ADD_NEW_ROBOT(modèle)` - Ajout de robot
+3. `SEED_DATA_SPARE_PARTS(nb)` - Génération de pièces
 
-Les applications **n’accèdent JAMAIS directement aux tables**, uniquement via **vues + fonctions + procédures**.
+### Triggers (4)
+1. Gestion INSERT via `ALL_WORKERS_ELAPSED`
+2. Audit automatique des nouveaux robots
+3. Vérification cohérence usines/production
+4. Calcul automatique durée de contrat
 
----
+## Tests rapides
 
-## 2️⃣ Rôle du dataset Excel
+```sql
+-- Vérifier les vues
+SELECT * FROM ALL_WORKERS;
+SELECT * FROM BEST_SUPPLIERS;
 
-Le dataset représente déjà une partie métier essentielle :
+-- Tester les fonctions
+SELECT dbo.GET_NB_WORKERS('Usine Paris');
+SELECT dbo.GET_NB_BIG_ROBOTS();
 
-### Ce que contient le dataset
+-- Exécuter une procédure
+EXEC SEED_DATA_WORKERS 5, 1;
+```
 
-Il correspond à :
+## Données incluses
+- 3 usines (Paris, Caracas, Beijing)
+- 10 modèles de robots
+- 3 fournisseurs (Optimux, Boston Mimics, VCTech Robotics)
+- 7 types de pièces
+- 20 travailleurs avec contrats
+- 4 mois de production (40 enregistrements)
 
-* La **production de robots**
-* Par **usine**
-* Par **date**
-* Par **modèle de robot**
-* Avec une **quantité produite**
-
-Il va servir principalement à :
-
-* Alimenter les tables **ROBOTS / FACTORIES / PRODUCTION**
-* Construire la vue **ROBOTS_FACTORIES**
-* Tester :
-
-  * le nombre de robots assemblés
-  * les usines les plus productives
-
-Il sera utilisé **dans `data.sql`**
-
----
-
-## 3️⃣ Découpage du travail en 5 (groupe de 5)
-
-### 👤 SAMB NAfissatou — **Modélisation & schéma SQL**
-
-`schema.sql`
-
-**Responsabilités :**
-
-* Concevoir toutes les tables
-* Définir les clés primaires / étrangères
-* Ajouter les contraintes métier
-
-**Tables principales à créer :**
-
-* FACTORIES
-* WORKERS
-* CONTRACTS (car un worker peut avoir plusieurs contrats)
-* ROBOTS
-* ROBOT_MODELS
-* SUPPLIERS
-* SPARE_PARTS
-* SUPPLIER_PARTS
-* ROBOT_PARTS
-* AUDIT_ROBOT
-
-**Contraintes importantes :**
-
-* Un worker peut travailler dans plusieurs usines
-* Paris → age obligatoire
-* Caracas → age nullable
-* Suppression d’un worker si aucun contrat depuis 5 ans
-* Une usine ne peut assembler un robot que si toutes les pièces sont présentes
-
-C’est **la base du projet**.
+## Arrêt du projet
+```bash
+docker-compose down
+```
 
 ---
 
-### 👤 Diallo ALPHA — **Données & alimentation**
-
-`data.sql`
-
-**Responsabilités :**
-
-* Transformer le fichier Excel en `INSERT INTO`
-* Créer :
-
-  * usines (Paris, Caracas, Beijing)
-  * modèles de robots
-  * données de production
-  * fournisseurs
-  * pièces détachées
-
-**À partir de ton dataset :**
-
-* 1 ligne Excel = production d’un robot
-* Lier :
-
-  * Robot → Modèle
-  * Usine → Factory
-  * Date → Production date
-
-Cette personne valide que **tout fonctionne avec des données réelles**.
-
----
-
-### 👤 Mariam Marwo ABDILLAHI ABDI — **Vues SQL**
-
-inclus dans `schema.sql` (ou fichier séparé si autorisé)
-
-**Responsabilités :**
-Créer **exactement** les vues demandées :
-
-1. `ALL_WORKERS`
-2. `ALL_WORKERS_ELAPSED`
-3. `BEST_SUPPLIERS`
-4. `ROBOTS_FACTORIES`
-
-**Points critiques :**
-
-* Respect **exact des noms**
-* Résultats triés correctement
-* Données manquantes conservées
-* Lecture seule
-
-Toutes les **fonctions et triggers dépendent de ces vues**.
-
----
-
-### 👤 Orlane Emmanuelle NKIBAN ITCHIRI — **Fonctions SQL**
-
- `functions.sql`
-
-**Responsabilités :**
-Créer les 4 fonctions demandées :
-
-1. `GET_NB_WORKERS(factory)`
-2. `GET_NB_BIG_ROBOTS`
-3. `GET_BEST_SUPPLIER`
-4. `GET_OLDEST_WORKER`
-
-**Règle importante :**
-Les fonctions doivent utiliser **les vues**, pas les tables.
-
-Cette personne doit tester chaque fonction avec des `SELECT`.
-
----
-
-### 👤 Mansour Djamil NDIAYE — **Procédures & Triggers**
-
-`procedures.sql` & `triggers.sql`
-
-**Procédures :**
-
-* Génération automatique de workers
-* Ajout de robots
-* Génération de pièces détachées
-
-**Triggers :**
-
-* Insertion via vue `ALL_WORKERS_ELAPSED`
-* Audit automatique des robots
-* Blocage si incohérence usines / tables
-* Calcul automatique de durée de contrat
-
-
----
-
-## 4️⃣ Ordre de travail 
-
-1. **Schéma SQL**
-2. **Vues**
-3. **Données**
-4. **Fonctions**
-5. **Procédures**
-6. **Triggers**
-7. Tests finaux
+**Note** : Les applications clientes n'accèdent jamais directement aux tables, uniquement via les vues, fonctions et procédures exposées.
