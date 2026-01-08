@@ -3,8 +3,9 @@ GO
 
 /* =========================================================
    1. SEED_DATA_WORKERS
-   Génère des workers avec dates aléatoires
+   Génère des workers avec dates aléatoires entre 2065 et 2070
 ========================================================= */
+
 CREATE OR ALTER PROCEDURE SEED_DATA_WORKERS
     @NB_WORKERS INT,
     @FACTORY_ID INT
@@ -15,30 +16,37 @@ BEGIN
     DECLARE @i INT = 1;
     DECLARE @worker_id INT;
     DECLARE @start_date DATE;
+    DECLARE @days_range INT;
+
+    SET @days_range = 1825;
 
     WHILE @i <= @NB_WORKERS
     BEGIN
         INSERT INTO WORKERS (lastname, firstname, age)
         VALUES (
-            'worker_l_' + CAST(@i AS VARCHAR),
-            'worker_f_' + CAST(@i AS VARCHAR),
+            'worker_l_' + CAST(@i AS VARCHAR(10)),
+            'worker_f_' + CAST(@i AS VARCHAR(10)),
             ABS(CHECKSUM(NEWID())) % 50 + 18
         );
 
         SET @worker_id = SCOPE_IDENTITY();
 
-        SET @start_date =
-            DATEADD(
-                DAY,
-                ABS(CHECKSUM(NEWID())) % 1825,
-                '2015-01-01'
-            );
+        SET @start_date = DATEADD(
+            DAY,
+            ABS(CHECKSUM(NEWID())) % @days_range, 
+            '2065-01-01'
+        );
 
+        -- Insertion du contrat (pas de end_date = travailleur actif)
         INSERT INTO CONTRACTS (worker_id, factory_id, start_date)
         VALUES (@worker_id, @FACTORY_ID, @start_date);
 
         SET @i += 1;
     END
+
+    PRINT 'Génération de ' + CAST(@NB_WORKERS AS VARCHAR(10)) + 
+          ' travailleurs pour l''usine ' + CAST(@FACTORY_ID AS VARCHAR(10)) + 
+          ' avec dates entre 2065 et 2070.';
 END;
 GO
 
