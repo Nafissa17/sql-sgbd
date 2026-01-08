@@ -8,21 +8,16 @@ GO
    Paramètre : nom de l’usine
    Vue utilisée : ALL_WORKERS
 ========================================================= */
-CREATE OR ALTER FUNCTION GET_NB_WORKERS (
-    @factory_name VARCHAR(100)
-)
+CREATE OR ALTER FUNCTION GET_NB_WORKERS(@factory_id INT)
 RETURNS INT
 AS
 BEGIN
-    DECLARE @nb_workers INT;
-
-    SELECT @nb_workers = COUNT(*)
-    FROM ALL_WORKERS aw
-    JOIN CONTRACTS c ON aw.start_date = c.start_date
-    JOIN FACTORIES f ON c.factory_id = f.factory_id
-    WHERE f.name = @factory_name;
-
-    RETURN @nb_workers;
+    RETURN (
+        SELECT COUNT(*)
+        FROM ALL_WORKERS aw
+        JOIN CONTRACTS c ON aw.worker_id = c.worker_id
+        WHERE c.factory_id = @factory_id
+    );
 END;
 GO
 
