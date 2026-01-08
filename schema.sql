@@ -189,8 +189,7 @@ SELECT
     c.start_date
 FROM WORKERS w
 JOIN CONTRACTS c ON w.worker_id = c.worker_id
-WHERE c.end_date IS NULL
-ORDER BY c.start_date DESC;
+WHERE c.end_date IS NULL;
 GO
 
 
@@ -213,8 +212,7 @@ SELECT
 FROM SUPPLIERS s
 JOIN SUPPLIER_PARTS sp ON s.supplier_id = sp.supplier_id
 GROUP BY s.supplier_name
-HAVING SUM(sp.quantity_supplied) > 1000
-ORDER BY nb_parts DESC;
+HAVING SUM(sp.quantity_supplied) > 1000;
 GO
 
 /* 4. ROBOTS_FACTORIES */
