@@ -174,6 +174,8 @@ CREATE TABLE AUDIT_ROBOT (
 );
 GO
 
+ALTER TABLE CONTRACTS ADD duration_days_real INT NULL;
+GO
 
 /*---------------VIEWS----------------- */
 
